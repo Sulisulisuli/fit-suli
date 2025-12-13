@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pl">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Prosta aplikacja do śledzenia dziennych postępów w pompkach i podciągnięciach. Twój osobisty licznik do celu 100 powtórzeń.">
+  <title>Fit Suli - Dzienny Progres</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div id="app">
+    <header class="app-header">
+      <h1>Fit Suli</h1>
+      <p id="current-date">Dzisiaj</p>
+      <button id="logout-btn" class="logout-btn hidden">Wyloguj</button>
+    </header>
+
+    <!-- Login Screen -->
+    <div id="login-overlay" class="login-overlay">
+      <div class="login-card">
+        <h2 id="auth-title">Zaloguj się</h2>
+        <p id="auth-subtitle">Witaj ponownie! 👋</p>
+
+        <div class="auth-buttons">
+          <button id="google-login" class="btn btn-google">
+            Kontynuuj z Google
+          </button>
+        </div>
+
+        <div class="divider">lub</div>
+
+        <form id="email-form">
+          <input type="email" id="email" placeholder="Email" required>
+          <input type="password" id="password" placeholder="Hasło" required>
+          <input type="password" id="confirm-password" class="hidden" placeholder="Powtórz hasło">
+          <button type="submit" id="auth-submit-btn" class="btn btn-primary">Zaloguj się</button>
+        </form>
+
+        <p id="auth-error" class="error-msg"></p>
+
+        <div class="auth-toggle">
+          <span id="auth-toggle-text">Nie masz konta?</span>
+          <button id="auth-toggle-btn" class="btn-text">Zarejestruj się</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="tracker-container hidden" id="main-content">
+      <!-- Pompki Card -->
+      <div class="tracker-card pushups-card">
+        <div class="card-header">
+          <div class="icon-wrapper">💪</div>
+          <h2>Pompki</h2>
+        </div>
+        <div class="progress-container">
+          <svg class="progress-ring" width="120" height="120">
+            <circle class="progress-ring__circle-bg" stroke-width="8" fill="transparent" r="52" cx="60" cy="60" />
+            <circle class="progress-ring__circle pushups-ring" stroke-width="8" fill="transparent" r="52" cx="60"
+              cy="60" />
+          </svg>
+          <div class="progress-text">
+            <span id="pushups-remaining" class="count-big">100</span>
+            <span class="label">zostało</span>
+          </div>
+        </div>
+        <div class="stats-row">
+          <span>Zrobione: <strong id="pushups-done">0</strong>/100</span>
+        </div>
+        <div class="input-group">
+          <input type="number" id="pushups-input" placeholder="+ Ile?" min="1">
+          <button id="add-pushups" class="btn btn-pushups">Dodaj</button>
+        </div>
+      </div>
+
+      <!-- Podciągnięcia Card -->
+      <div class="tracker-card pullups-card">
+        <div class="card-header">
+          <div class="icon-wrapper">🧗</div>
+          <h2>Podciągnięcia</h2>
+        </div>
+        <div class="progress-container">
+          <svg class="progress-ring" width="120" height="120">
+            <circle class="progress-ring__circle-bg" stroke-width="8" fill="transparent" r="52" cx="60" cy="60" />
+            <circle class="progress-ring__circle pullups-ring" stroke-width="8" fill="transparent" r="52" cx="60"
+              cy="60" />
+          </svg>
+          <div class="progress-text">
+            <span id="pullups-remaining" class="count-big">100</span>
+            <span class="label">zostało</span>
+          </div>
+        </div>
+        <div class="stats-row">
+          <span>Zrobione: <strong id="pullups-done">0</strong>/100</span>
+        </div>
+        <div class="input-group">
+          <input type="number" id="pullups-input" placeholder="+ Ile?" min="1">
+          <button id="add-pullups" class="btn btn-pullups">Dodaj</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <button id="reset-day" class="btn-text">Zresetuj dzień</button>
+    </footer>
+  </div>
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>

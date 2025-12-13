@@ -1,0 +1,9 @@
+
+# Valid for most node projects
+node_modules
+.DS_Store
+*.local
+.env
+dist
+dist-ssr
+*.log
