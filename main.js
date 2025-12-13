@@ -33,8 +33,6 @@ const elements = {
     loginOverlay: document.getElementById('login-overlay'),
     mainContent: document.getElementById('main-content'),
     logoutBtn: document.getElementById('logout-btn'),
-    googleLoginBtn: document.getElementById('google-login'),
-
     authTitle: document.getElementById('auth-title'),
     authSubtitle: document.getElementById('auth-subtitle'),
     emailForm: document.getElementById('email-form'),
@@ -233,9 +231,13 @@ function setupListeners() {
     // Auth Listeners
     elements.authToggleBtn.addEventListener('click', toggleAuthMode);
 
+    // Google Login removed
+    /*
     elements.googleLoginBtn.addEventListener('click', async () => {
         await signInWithGoogle();
     });
+    */
+
 
     elements.emailForm.addEventListener('submit', async (e) => {
         e.preventDefault();
