@@ -180,23 +180,31 @@ body {
     width: 100%;
 }
 
-.input-group input {
-    flex: 1;
+/* Shared Input Styles */
+.input-group input,
+#email-form input {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-md);
-    padding: 10px 12px;
+    padding: 14px 16px;
     color: #fff;
     font-family: inherit;
     font-size: 1rem;
     outline: none;
-    transition: border-color 0.2s;
-    width: 0;
-    /* flex fix */
+    transition: all 0.2s ease;
 }
 
-.input-group input:focus {
-    border-color: rgba(255, 255, 255, 0.3);
+.input-group input:focus,
+#email-form input:focus {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+}
+
+.input-group input {
+    flex: 1;
+    width: 0;
+    /* flex fix */
 }
 
 .input-group input::-webkit-inner-spin-button,
