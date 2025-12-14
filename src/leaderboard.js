@@ -53,10 +53,73 @@ export async function fetchLeaderboard() {
     return leaderboard;
 }
 
+// ... existing imports
+
 export async function createProfile(userId, nickname) {
     const { error } = await supabase
         .from('profiles')
         .upsert([{ id: userId, nickname: nickname }], { onConflict: 'id' });
 
     if (error) console.error('Error creating/updating profile:', error);
+}
+
+export async function fetchStreakLeaderboard() {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('id, nickname, current_streak')
+        .order('current_streak', { ascending: false })
+        .limit(10);
+
+    if (error) {
+        console.error('Error fetching streak leaderboard:', error);
+        return [];
+    }
+
+    return data.map(entry => ({
+        nickname: entry.nickname || 'Anonim',
+        score: entry.current_streak, // Reusing 'score' property for generic compatibility
+        isStreak: true
+    }));
+}
+
+export async function updateStreak(userId) {
+    const today = new Date().toISOString().split('T')[0];
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterday = yesterdayDate.toISOString().split('T')[0];
+
+    // 1. Get current profile state
+    const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+    if (error || !profile) return;
+
+    // Check if already updated today
+    if (profile.last_goal_met_date === today) {
+        return; // Already counted for today
+    }
+
+    let newCurrentStreak = 1;
+    // Check if streak continues (last met date was yesterday)
+    if (profile.last_goal_met_date === yesterday) {
+        newCurrentStreak = (profile.current_streak || 0) + 1;
+    } else {
+        // Streak broken or new start
+        newCurrentStreak = 1;
+    }
+
+    const newLongestStreak = Math.max(profile.longest_streak || 0, newCurrentStreak);
+
+    // 2. Update profile
+    await supabase
+        .from('profiles')
+        .update({
+            current_streak: newCurrentStreak,
+            longest_streak: newLongestStreak,
+            last_goal_met_date: today
+        })
+        .eq('id', userId);
 }

@@ -9,7 +9,7 @@ import {
     getUser,
     onAuthStateChange
 } from './src/auth'
-import { fetchLeaderboard, createProfile } from './src/leaderboard'
+import { fetchLeaderboard, fetchStreakLeaderboard, createProfile, updateStreak } from './src/leaderboard'
 
 // Configuration
 const CONFIG = {
@@ -26,7 +26,10 @@ let state = {
     pullups: 0,
     lastDate: null,
     user: null,
-    authMode: 'login' // 'login' or 'signup'
+    lastDate: null,
+    user: null,
+    authMode: 'login', // 'login' or 'signup'
+    leaderboardMode: 'today' // 'today' or 'streaks'
 };
 
 // DOM Elements
@@ -51,6 +54,8 @@ const elements = {
     // App
     date: document.getElementById('current-date'),
     resetBtn: document.getElementById('reset-day'),
+    tabToday: document.getElementById('tab-today'),
+    tabStreaks: document.getElementById('tab-streaks'),
 
     // Pushups
     pushupsRemaining: document.getElementById('pushups-remaining'),
@@ -187,6 +192,11 @@ async function saveData() {
         }, { onConflict: 'user_id, date_key' });
 
     if (error) console.error('Error saving data:', error);
+
+    // Check for streak update
+    if (state.pushups >= CONFIG.PUSHUPS_GOAL && state.pullups >= CONFIG.PULLUPS_GOAL) {
+        await updateStreak(state.user.id);
+    }
 }
 
 function setupDate() {
@@ -340,6 +350,21 @@ function setupListeners() {
             resetDay();
         }
     });
+
+    // Leaderboard Tabs
+    elements.tabToday.addEventListener('click', () => {
+        state.leaderboardMode = 'today';
+        elements.tabToday.classList.add('active');
+        elements.tabStreaks.classList.remove('active');
+        refreshLeaderboard();
+    });
+
+    elements.tabStreaks.addEventListener('click', () => {
+        state.leaderboardMode = 'streaks';
+        elements.tabStreaks.classList.add('active');
+        elements.tabToday.classList.remove('active');
+        refreshLeaderboard();
+    });
 }
 
 async function refreshLeaderboard() {
@@ -347,10 +372,15 @@ async function refreshLeaderboard() {
     if (!list) return;
 
     // list.innerHTML = '<div class="leaderboard-loading">Ładowanie...</div>';
-    const data = await fetchLeaderboard();
+    let data = [];
+    if (state.leaderboardMode === 'today') {
+        data = await fetchLeaderboard();
+    } else {
+        data = await fetchStreakLeaderboard();
+    }
 
     if (!data.length) {
-        list.innerHTML = '<div class="leaderboard-loading">Brak wyników na dziś. Bądź pierwszy! 🥇</div>';
+        list.innerHTML = '<div class="leaderboard-loading">Brak wyników. Bądź pierwszy! 🥇</div>';
         return;
     }
 
@@ -358,21 +388,36 @@ async function refreshLeaderboard() {
         const isMe = state.user?.user_metadata?.display_name === entry.nickname;
         const rankClass = index < 3 ? `top-${index + 1}` : '';
 
-        // Badge Logic
-        const hasMetGoals = (entry.pushups >= CONFIG.PUSHUPS_GOAL) && (entry.pullups >= CONFIG.PULLUPS_GOAL);
-        const badge = hasMetGoals ? '🔥' : '🍩';
-        const badgeTitle = hasMetGoals ? 'Mistrz dnia!' : 'Do roboty!';
+        // Render varies by mode
+        let scoreHtml = '';
+        let badge = '';
+
+        if (state.leaderboardMode === 'today') {
+            const hasMetGoals = (entry.pushups >= CONFIG.PUSHUPS_GOAL) && (entry.pullups >= CONFIG.PULLUPS_GOAL);
+            badge = hasMetGoals ? ' <span title="Mistrz dnia!">🔥</span>' : ' <span title="Do roboty!">🍩</span>';
+
+            scoreHtml = `
+                <div class="player-score">
+                    <span class="score-badge" title="Pompki">💪 ${entry.pushups}</span>
+                    <span class="score-badge" title="Podciągnięcia">🧗 ${entry.pullups}</span>
+                </div>
+            `;
+        } else {
+            // Streak Mode
+            scoreHtml = `
+                <div class="player-score">
+                   <span class="score-badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">🔥 ${entry.score} dni</span>
+                </div>
+            `;
+        }
 
         return `
             <div class="leaderboard-item ${isMe ? 'is-me' : ''}">
                 <div class="rank ${rankClass}">${index + 1}</div>
                 <div class="player-info">
-                    <span class="player-name">${entry.nickname} <span title="${badgeTitle}">${badge}</span></span>
+                    <span class="player-name">${entry.nickname}${badge}</span>
                 </div>
-                <div class="player-score">
-                    <span class="score-badge" title="Pompki">💪 ${entry.pushups}</span>
-                    <span class="score-badge" title="Podciągnięcia">🧗 ${entry.pullups}</span>
-                </div>
+                ${scoreHtml}
             </div>
         `;
     }).join('');
