@@ -71,8 +71,14 @@ body {
     gap: 20px;
 }
 
+.metrics-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
 @media (min-width: 600px) {
-    .tracker-container {
+    .metrics-grid {
         flex-direction: row;
     }
 }
