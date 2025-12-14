@@ -9,7 +9,7 @@ import {
     getUser,
     onAuthStateChange
 } from './src/auth'
-import { fetchLeaderboard } from './src/leaderboard'
+import { fetchLeaderboard, createProfile } from './src/leaderboard'
 
 // Configuration
 const CONFIG = {
@@ -161,6 +161,12 @@ async function loadData() {
 
     state.lastDate = today;
     updateUI();
+    // Ensure profile exists (fix for "Anonim" issue)
+    if (state.user.user_metadata?.display_name) {
+        // We fire and forget this check/update to not block UI
+        createProfile(state.user.id, state.user.user_metadata.display_name);
+    }
+
     refreshLeaderboard();
 }
 
@@ -281,6 +287,11 @@ function setupListeners() {
             const { data, error } = await signUpWithEmail(email, password, {
                 display_name: nickname
             });
+
+            // Create profile record immediately
+            if (data?.user) {
+                await createProfile(data.user.id, nickname);
+            }
 
             if (error) {
                 elements.authError.textContent = 'Błąd rejestracji: ' + error.message;

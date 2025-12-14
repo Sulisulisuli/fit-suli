@@ -51,7 +51,7 @@ export async function fetchLeaderboard() {
 export async function createProfile(userId, nickname) {
     const { error } = await supabase
         .from('profiles')
-        .insert([{ id: userId, nickname: nickname }]);
+        .upsert([{ id: userId, nickname: nickname }], { onConflict: 'id' });
 
-    if (error) console.error('Error creating profile:', error);
+    if (error) console.error('Error creating/updating profile:', error);
 }
