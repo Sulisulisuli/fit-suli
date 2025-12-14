@@ -7,7 +7,6 @@ import {
     signUpWithEmail,
     signOut,
     getUser,
-    getUser,
     onAuthStateChange
 } from './src/auth'
 import { fetchLeaderboard } from './src/leaderboard'
