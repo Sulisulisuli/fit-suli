@@ -13,7 +13,8 @@ import { fetchLeaderboard, createProfile } from './src/leaderboard'
 
 // Configuration
 const CONFIG = {
-    GOAL: 100,
+    PUSHUPS_GOAL: 100,
+    PULLUPS_GOAL: 50,
     CIRCLE_RADIUS: 52,
 };
 
@@ -208,7 +209,8 @@ function updateUI() {
 
 function updateSection(type) {
     const count = state[type];
-    const remaining = Math.max(0, CONFIG.GOAL - count);
+    const GOAL = type === 'pushups' ? CONFIG.PUSHUPS_GOAL : CONFIG.PULLUPS_GOAL;
+    const remaining = Math.max(0, GOAL - count);
     const done = count;
 
     // Text updates
@@ -216,7 +218,7 @@ function updateSection(type) {
     elements[`${type}Done`].textContent = done;
 
     // Ring Animation
-    const percent = Math.min(100, (count / CONFIG.GOAL) * 100);
+    const percent = Math.min(100, (count / GOAL) * 100);
     const offset = CIRCUMFERENCE - (percent / 100) * CIRCUMFERENCE;
     elements[`${type}Ring`].style.strokeDashoffset = offset;
 }
@@ -224,8 +226,14 @@ function updateSection(type) {
 async function addProgress(type) {
     const input = elements[`${type}Input`];
     const value = parseInt(input.value);
+    const GOAL = type === 'pushups' ? CONFIG.PUSHUPS_GOAL : CONFIG.PULLUPS_GOAL;
 
     if (value && value > 0) {
+        if (value > GOAL) {
+            alert(`Maksymalnie możesz dodać ${GOAL} powtórzeń na raz!`);
+            return;
+        }
+
         state[type] += value;
         updateUI();
         await saveData();
@@ -343,11 +351,16 @@ async function refreshLeaderboard() {
         const isMe = state.user?.user_metadata?.display_name === entry.nickname;
         const rankClass = index < 3 ? `top-${index + 1}` : '';
 
+        // Badge Logic
+        const hasMetGoals = (entry.pushups >= CONFIG.PUSHUPS_GOAL) && (entry.pullups >= CONFIG.PULLUPS_GOAL);
+        const badge = hasMetGoals ? '🔥' : '🍩';
+        const badgeTitle = hasMetGoals ? 'Mistrz dnia!' : 'Do roboty!';
+
         return `
             <div class="leaderboard-item ${isMe ? 'is-me' : ''}">
                 <div class="rank ${rankClass}">${index + 1}</div>
                 <div class="player-info">
-                    <span class="player-name">${entry.nickname}</span>
+                    <span class="player-name">${entry.nickname} <span title="${badgeTitle}">${badge}</span></span>
                 </div>
                 <div class="player-score">
                     <span class="score-badge" title="Pompki">💪 ${entry.pushups}</span>
