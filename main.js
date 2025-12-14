@@ -229,8 +229,15 @@ async function addProgress(type) {
     const GOAL = type === 'pushups' ? CONFIG.PUSHUPS_GOAL : CONFIG.PULLUPS_GOAL;
 
     if (value && value > 0) {
-        if (value > GOAL) {
-            alert(`Maksymalnie możesz dodać ${GOAL} powtórzeń na raz!`);
+        if (state[type] >= GOAL) {
+            alert(`Już osiągnąłeś cel ${GOAL}! Odpocznij. 🏆`);
+            input.value = '';
+            return;
+        }
+
+        if (state[type] + value > GOAL) {
+            const remaining = GOAL - state[type];
+            alert(`Możesz dodać maksymalnie jeszcze ${remaining}, aby dobić do ${GOAL}.`);
             return;
         }
 
