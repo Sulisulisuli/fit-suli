@@ -259,6 +259,94 @@ body {
     opacity: 1;
 }
 
+/* Leaderboard Styles */
+.leaderboard-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.leaderboard-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s;
+}
+
+.leaderboard-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.leaderboard-item.is-me {
+    border-color: var(--primary-pushups);
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.rank {
+    font-weight: 800;
+    color: var(--text-muted);
+    width: 24px;
+    text-align: center;
+}
+
+.rank.top-1 {
+    color: #fbbf24;
+}
+
+/* Gold */
+.rank.top-2 {
+    color: #94a3b8;
+}
+
+/* Silver */
+.rank.top-3 {
+    color: #b45309;
+}
+
+/* Bronze */
+
+.player-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 10px;
+}
+
+.player-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.player-score {
+    font-weight: 800;
+    color: var(--text-main);
+    display: flex;
+    gap: 10px;
+    font-size: 0.85rem;
+}
+
+.score-badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.leaderboard-loading {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    padding: 20px;
+}
+
 /* Auth Styles */
 .hidden {
     display: none !important;

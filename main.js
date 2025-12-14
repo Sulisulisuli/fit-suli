@@ -7,8 +7,10 @@ import {
     signUpWithEmail,
     signOut,
     getUser,
+    getUser,
     onAuthStateChange
 } from './src/auth'
+import { fetchLeaderboard } from './src/leaderboard'
 
 // Configuration
 const CONFIG = {
@@ -160,6 +162,7 @@ async function loadData() {
 
     state.lastDate = today;
     updateUI();
+    refreshLeaderboard();
 }
 
 async function saveData() {
@@ -221,6 +224,7 @@ async function addProgress(type) {
         state[type] += value;
         updateUI();
         await saveData();
+        refreshLeaderboard(); // Update leaderboard immediately
 
         input.value = '';
         input.focus();
@@ -311,6 +315,37 @@ function setupListeners() {
             resetDay();
         }
     });
+}
+
+async function refreshLeaderboard() {
+    const list = document.getElementById('leaderboard-list');
+    if (!list) return;
+
+    // list.innerHTML = '<div class="leaderboard-loading">Ładowanie...</div>';
+    const data = await fetchLeaderboard();
+
+    if (!data.length) {
+        list.innerHTML = '<div class="leaderboard-loading">Brak wyników na dziś. Bądź pierwszy! 🥇</div>';
+        return;
+    }
+
+    list.innerHTML = data.map((entry, index) => {
+        const isMe = state.user?.user_metadata?.display_name === entry.nickname;
+        const rankClass = index < 3 ? `top-${index + 1}` : '';
+
+        return `
+            <div class="leaderboard-item ${isMe ? 'is-me' : ''}">
+                <div class="rank ${rankClass}">${index + 1}</div>
+                <div class="player-info">
+                    <span class="player-name">${entry.nickname}</span>
+                </div>
+                <div class="player-score">
+                    <span class="score-badge" title="Pompki">💪 ${entry.pushups}</span>
+                    <span class="score-badge" title="Podciągnięcia">🧗 ${entry.pullups}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 // Start
