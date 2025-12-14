@@ -17,10 +17,13 @@ export const signInWithEmail = async (email, password) => {
     return { data, error }
 }
 
-export const signUpWithEmail = async (email, password) => {
+export const signUpWithEmail = async (email, password, userData = {}) => {
     const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+            data: userData, // e.g. { display_name: 'Nick' }
+        }
     })
     return { data, error }
 }

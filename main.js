@@ -37,6 +37,7 @@ const elements = {
     authSubtitle: document.getElementById('auth-subtitle'),
     emailForm: document.getElementById('email-form'),
     emailInput: document.getElementById('email'),
+    nicknameInput: document.getElementById('nickname'),
     passwordInput: document.getElementById('password'),
     confirmPasswordInput: document.getElementById('confirm-password'),
     authSubmitBtn: document.getElementById('auth-submit-btn'),
@@ -116,13 +117,19 @@ function toggleAuthMode() {
     elements.authToggleText.textContent = isLogin ? 'Nie masz konta?' : 'Masz już konto?';
     elements.authToggleBtn.textContent = isLogin ? 'Zarejestruj się' : 'Zaloguj się';
 
-    // Show/Hide Confirm Password
+    // Show/Hide Fields
     if (isLogin) {
         elements.confirmPasswordInput.classList.add('hidden');
         elements.confirmPasswordInput.required = false;
+
+        elements.nicknameInput.classList.add('hidden');
+        elements.nicknameInput.required = false;
     } else {
         elements.confirmPasswordInput.classList.remove('hidden');
         elements.confirmPasswordInput.required = true;
+
+        elements.nicknameInput.classList.remove('hidden');
+        elements.nicknameInput.required = true;
     }
 
     // Clear error
@@ -239,6 +246,8 @@ function setupListeners() {
     */
 
 
+    elements.nicknameInput = document.getElementById('nickname');
+
     elements.emailForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = elements.emailInput.value;
@@ -252,18 +261,28 @@ function setupListeners() {
             }
         } else {
             // Sign Up
+            const nickname = elements.nicknameInput.value;
             const confirmResult = elements.confirmPasswordInput.value;
+
+            if (!nickname) {
+                elements.authError.textContent = 'Podaj swój nick!';
+                return;
+            }
+
             if (password !== confirmResult) {
                 elements.authError.textContent = 'Hasła nie są takie same!';
                 return;
             }
 
-            const { data, error } = await signUpWithEmail(email, password);
+            // Pass nickname to Supabase
+            const { data, error } = await signUpWithEmail(email, password, {
+                display_name: nickname
+            });
+
             if (error) {
                 elements.authError.textContent = 'Błąd rejestracji: ' + error.message;
             } else if (data?.session) {
-                // Auto-login active (Confirm Email disabled in Supabase)
-                // onAuthStateChange will handle the UI switch
+                // Auto-login active
                 console.log('Auto-login successful');
             } else {
                 elements.authError.style.color = '#4ade80'; // Green
